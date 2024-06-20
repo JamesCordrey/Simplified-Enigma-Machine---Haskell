@@ -70,16 +70,10 @@ module Enigma where
   encodeStecker x (lc,lknock) (mc,mknock) (rc,rknock) ref (lo, mo, ro) steck = 
     applyStecker (encodeSimple (applyStecker x steck)(lc,lknock) (mc,mknock) (rc,rknock) ref (lo, mo, ro)) steck
 
-  {- Takes a lsit of Ints (indexes of alphabet), and the Enigma information and outputs the encoded String. 
+  {- Takes a list of Ints (indexes of alphabet), and the Enigma information and outputs the encoded String. 
      Calls encodeForward, reflect, encodeBackward, convertBack in that order. -}
   encodeSimple :: [Int] -> Rotor -> Rotor -> Rotor -> Reflector -> Offsets -> [Int]
   encodeSimple [] _ _ _ _ _ = []
-  {- if length of input is 1, only applies to a single char -}
-  encodeSimple x lr mr rr ref (lo, mo, ro) 
-    | length x == 1 = [encodeBackward (reflect (encodeForward (head x) lr mr rr newOff) ref) lr mr rr newOff]
-      where
-        newOff = advanceRotors (lo, mo, ro) (snd lr, snd mr, snd rr)
-  {- if length of input >1, recursively encodes the first Char of the input -}
   encodeSimple (x:xs) lr mr rr ref (lo, mo, ro) =  
       encodeBackward (reflect (encodeForward x lr mr rr newOff) ref) lr mr rr newOff
       : encodeSimple xs lr mr rr ref newOff
@@ -97,6 +91,7 @@ module Enigma where
      It outputs a new Int representing the forward encoded Char. -}
   applyRotor :: Int -> Rotor -> Int -> Int
   applyRotor x (cipher, _) offset = (getCharAt ((x + offset) `mod` 26) cipher - offset) `mod` 26
+  backRotor x c3 o = (getCharAt(getIndex ((x + o) `mod` 26) c3) plain - o) `mod` 26
 
   {- Takes an input Int (index of alphabet), three rotors and the rotors' offsets and returns a new Int representing the fully
      forward encoded Char.
@@ -346,7 +341,7 @@ module Enigma where
  
         --"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-  plain="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  plain=  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   rotor1=("EKMFLGDQVZNTOWYHXUSPAIBRCJ",17::Int)
   rotor2=("AJDKSIRUXBLHWTMCQGZNPYFVOE",5::Int)
   rotor3=("BDFHJLCPRTXVZNYEIWGAKMUSQO",22::Int)
