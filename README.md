@@ -4,11 +4,10 @@
 
 This project conforms to an assignment brief provided by a professor at my university. It aims to simulate both the Enigma machine and the Bombe machine - used to break the enigma and the result of the efforts from the code breakers working at Bletchley Park. In the following sections, I will explain the different aspects of these machines and how they work. Each section will have a link to a wikipedia page with more information on their respective topics. 
 
-If you wish to skip to the section on how to run this code and use the functions, click HERE.
-
 ## The Enigma Machine ##
 
 In this section, I will briefly outline how the Enigma machine worked in reality, as well as the abstracted versions that I have implemented. For more information, please visit the wikipedia page [HERE](https://en.wikipedia.org/wiki/Enigma_machine).
+
 The Enigma machine was an encryption/decryption device that was built upon rotors, each being a fixed alphabetic substitution cypher. Below is a list of the pre-defined rotors I used for this project, along with their notch positions:
 * plain - ABCDEFGHIJKLMNOPQRSTUVWXYZ
 * R1 - EKMFLGDQVZNTOWYHXUSPAIBRCJ, 17
@@ -26,6 +25,7 @@ In the basic (unsteckered) Enigma, an input character will be passed through the
 `(A Y) (B R) (C U) (D H) (E Q) (F S) (G L) (I P) (J X) (K N) (M O) (T Z) (V W)`
 
 An example, where R1, R2, R3 correspond to LR, MR, RR and our initial offsets are (0, 0, 25). Before encoding, OR will be incremented making the offsets (0, 0, 0):
+
 ![Basic Enigma Example](https://github.com/JamesCordrey/Simplified-Enigma-Machine---Haskell/blob/main/READMEimages/FullBasicEnigma.PNG)
 
 ### Steckered Enigma ###
@@ -38,6 +38,7 @@ In this section, I will briefly outline how the Enigma machine worked in reality
 ### Finding the Longest Menu ###
 
 Military messsages were very formulaic, meaning they would often contain the same contents at the same position of the message. For example, a very short message has a good chance of being "nothing to report", while long messages will often identify its sender early in the message and the weather forecast followed by a place towards the end of the message. These common phrases were called `'cribs'` and were the basis of Alan Turing's method for breaking Enigmas. An example of the weather forecase crib:
+
 ![Weather Forecast Crib Example](https://github.com/JamesCordrey/Simplified-Enigma-Machine---Haskell/blob/main/READMEimages/ExampleCrib.PNG)
 
 The codebreakers would find something called the `longest menu` by using these cribs. A `menu` is a chain of characters that link together with no overlap between plain text and the encrypted text. In the example above, one of several menus of length 17 is: `[13,14,19,22,4,3,6,5,21,12,7,1,0,8,18,16,9]`.
@@ -50,14 +51,29 @@ The codebreakers at Bletchley Park were aware of how the Enigma machine worked, 
 
 Suppose we are starting at position 21 and have assumed that the steckering for 'Y' is for it to remain unchanged, 'Y' is encoded by the Enigma to 'E'. The final cipher is actually 'V', so we need to add [E, V] to the stecker. This would then mean that position 6 must have an input of 'E' for which the Enigma outputs 'N'. However, the final cipher is 'E', so we need to add [E, N] to the stecker which is a contradiction. This would mean we need to try another make a new assumption for the steckering of our staring character 'Y'. If the bombe machine exhausts all possible starting steckers, it will then try a different set of initial offsets and will repeat this until it has covered all configurations. The result of this process may not provide any possible configurations.
 
+To simplify the project and reduce the runtime of thorough testing, I made the assumption that the messages will always have been encoded with the rotor arrangement of R1 on the left, R2 in the middle and R3 on the right.
+
 ## Running and Using the Code ##
 
 All of the code can be found in the `Enigma.hs` file and it is separated into the different sections outlined above by clear comment breaks. Each function has a concise descrription outlining its parameters and purpose directly above itself.
 
+The program works through the command line assuming you have [Haskell](https://www.haskell.org/downloads/) installed.
 
+### Enigma Machine ###
 
+To run this you will need to use the function `encodeMessage` and provide it with the string you want to be encoded along with the starting configurations. Below are some examples for both basic and steckered Enigmas:
 
+* `Basic` - encodeMessage "Your message to be encoded/decoded" (SimpleEnigma rotor1 rotor2 rotor3 reflectorB (0,5,1))
+* `Steckered` - encodeMessage "Your message to be encoded/decoded" (SteckeredEnigma rotor3 rotor4 rotor1 reflectorB (0,5,1) [('F','T'),('D','U'),('X','A'),('K','W'),('H','Z'),('I','P')])
 
+To be able to decode the output of this, you simply need to run the same command, replacing the input string with your output.
 
+### Bombe Machine ###
 
+To run the bombe machine, the 'breakEnigma' function will be used which takes a crib and returns the initial offsets and steckerboard of any possible solutions. To fully explain how to use this, I will provide a step-by-step process of an example input.
 
+1. Say we had a message encoded by the following Enigma setup: `SteckeredEnigma rotor1 rotor2 rotor3 reflectorB (0,1,1) [('D','U'),('X','A'),('K','W'),('H','Z'),('I','P')]`. You can find the original and encoded texts I used on lines `386 & 387`.
+
+2. We now can formulate a crib. In this case I used the first 46 characters, which provided our test crib on line `389`. To help create your own crib, I have provided a `makeCrib` function on lines `328-333`.
+
+3. Finally, we can run the `breakEnigma` function on our crib with the following in your terminal: `breakEnigma YOURCRIB`. If you were to use the `testBombeCrib` variable that I have pre-definded in this command, it should return the initial configurations I used at step 1 in the form `Just ((0,1,1),[('B','B'),('Y','Y'),('C','C'),('P','I'),('K','W'),('E','E'),('X','A'),('N','N'),('G','G'),('X','A'),('E','E'),('M','M'),('L','L'),('P','I'),('C','C'),('R','R'),('L','L'),('P','I'),('S','S'),('X','A'),('E','E'),('Z','H'),('E','E')])`.
