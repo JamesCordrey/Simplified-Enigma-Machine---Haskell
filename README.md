@@ -76,4 +76,4 @@ To run the bombe machine, the 'breakEnigma' function will be used which takes a 
 
 2. We now can formulate a crib. In this case I used the first 46 characters, which provided our test crib on line `389`. To help create your own crib, I have provided a `makeCrib` function on lines `328-333`.
 
-3. Finally, we can run the `breakEnigma` function on our crib with the following in your terminal: `breakEnigma YOURCRIB`. If you were to use the `testBombeCrib` variable that I have pre-definded in this command, it should return the initial configurations I used at step 1 in the form `Just ((0,1,1),[('B','B'),('Y','Y'),('C','C'),('P','I'),('K','W'),('E','E'),('X','A'),('N','N'),('G','G'),('X','A'),('E','E'),('M','M'),('L','L'),('P','I'),('C','C'),('R','R'),('L','L'),('P','I'),('S','S'),('X','A'),('E','E'),('Z','H'),('E','E')])`.
+3. Finally, we can run the `breakEnigma` function on our crib with the following in your terminal: `breakEnigma YOURCRIB`. If you were to use the `testBombeCrib` variable that I have pre-definded in this command, it should return the initial configurations.
